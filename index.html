@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Intro to Carousel</title>
+
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+}
+
+/* BACKGROUND */
+body {
+    background: radial-gradient(circle at center,
+        #ffffff 0%,
+        #ffc0cb 45%,
+        #87ceeb 100%);
+}
+
+/* INTRO */
+#intro {
+    height: 100vh;
+    padding: 40px;
+    box-sizing: border-box;
+    color: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 24px;
+    transition: opacity 1s ease;
+}
+
+#intro h1 { font-size: 3rem; font-weight: 300; }
+#intro p { font-size: 1.3rem; max-width: 700px; line-height: 1.6; color: #111; }
+
+#intro button {
+    padding: 14px 36px;
+    font-size: 1.2rem;
+    border-radius: 30px;
+    border: none;
+    background: #000;
+    color: #fff;
+    cursor: pointer;
+}
+
+/* CAROUSEL PAGE */
+#carouselPage {
+    display: none;
+    height: 100vh;
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.page {
+    height: 100vh;
+    padding: 40px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* CAROUSEL */
+#carousel {
+    width: 100%;
+    max-width: 1200px;
+    height: 60vh;
+    position: relative;
+    overflow: hidden;
+}
+
+#carousel img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: transform 1s ease, opacity 1s ease;
+    opacity: 0;
+}
+
+/* CAPTION */
+#caption {
+    margin-top: 28px;
+    padding: 14px 28px;
+    font-size: 1.5rem;
+    text-align: center;
+    min-height: 3em;
+    max-width: 900px;
+    background: rgba(0,0,0,0.35);
+    border-radius: 12px;
+    color: #fff;
+}
+
+/* HEARTS */
+.hearts {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.heart {
+    position: absolute;
+    pointer-events: auto;
+    width: 22px;
+    height: 22px;
+    background: rgba(255,92,138,0.7);
+    transform: rotate(-45deg);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.heart.blue {
+    background: rgba(90,160,255,0.9);
+}
+
+.heart::before,
+.heart::after {
+    content: "";
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    background: inherit;
+    border-radius: 50%;
+}
+
+.heart::before { top: -11px; left: 0; }
+.heart::after { left: 11px; top: 0; }
+
+.heart span {
+    position: absolute;
+    transform: rotate(45deg);
+    top: 5px;
+    left: 4px;
+    font-size: 10px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 3px rgba(0,0,0,.8);
+}
+
+/* FINAL PAGE */
+#finalPage {
+    display: none;
+    height: 100vh;
+    text-align: center;
+    color: #000;
+    gap: 24px;
+}
+
+#finalPage button {
+    padding: 14px 36px;
+    font-size: 1.2rem;
+    border-radius: 30px;
+    border: none;
+    background: #000;
+    color: #fff;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<!-- INTRO -->
+<div id="intro">
+<h1>Happy Valentine’s Day Langga</h1>
+<p id="introText">
+Looking back on our time together, I’m so incredibly grateful for the life we’ve built. 
+From the highlight reels to the quiet, everyday moments, every memory we've made is a treasure to me. 
+Thank you for the lessons we’ve learned side-by-side — they’ve made us stronger and brought me closer to you.
+I can’t wait to see what the future holds for us.
+<br><br>
+I made this to show some of my favourite moments of our time together. 
+Some memories are seen, captured in pictures — and some are hidden, waiting to be discovered.
+<br><br>
+I hope you like it hehe ❤️
+</p>
+<button onclick="enterCarousel()">Enter</button>
+</div>
+
+<!-- CAROUSEL -->
+<div id="carouselPage">
+<div class="page">
+<div id="carousel"></div>
+<div id="caption"></div>
+</div>
+</div>
+
+<!-- FINAL -->
+<div id="finalPage" class="page">
+<h1>Congratsss ❤️</h1>
+<p>Thank you for finding all the memories.</p>
+<button onclick="window.close()">Kabyoo soc muh!</button>
+</div>
+
+<!-- HEARTS -->
+<div class="hearts" id="hearts"></div>
+
+<!-- AUDIO -->
+<audio id="bgMusic" src="audio/background.mp3" loop></audio>
+<audio id="voice1" src="audio/voice1.m4a"></audio>
+<audio id="voice2" src="audio/voice2.m4a"></audio>
+
+<script>
+/* SLIDES */
+const slides = [
+ { src:"images/img1.jpg", caption:"First time nako nakita unsa jud ka kakiat hehe" },
+ { src:"images/img2.jpg", caption:"Adik sa unliiiii" },
+ { src:"images/img3.jpg", caption:"First overnight natoo" },
+ { src:"images/img4.jpg", caption:"Day 2 sa first overnight" },
+ { src:"images/img5.jpg", caption:"Naga boardwalk datenight :D" },
+ { src:"images/img6.jpg", caption:"Boardwalk pt. 2" },
+ { src:"images/img7.jpg", caption:"Gullas sa gabii hehe, likay2 truck pauli :D" },
+ { src:"images/img8.jpg", caption:"First time nako sa Tops" },
+ { src:"images/img9.jpg", caption:"Best part is kuyog ta" },
+ { src:"images/img10.jpg", caption:"Legal na 💕" },
+ { src:"images/img11.jpg", caption:"Pinakalayo nato nga rides" },
+ { src:"images/img12.jpg", caption:"Kape ra daw pero naabot sa Compostela" },
+ { src:"images/img13.jpg", caption:"Random moments" },
+ { src:"images/img14.jpg", caption:"Anniversary night" },
+ { src:"images/img15.jpg", caption:"Sinulog Rides ❤️" }
+];
+
+const carousel = document.getElementById("carousel");
+const captionBox = document.getElementById("caption");
+const bgMusic = document.getElementById("bgMusic");
+const voice1 = document.getElementById("voice1");
+const voice2 = document.getElementById("voice2");
+
+let images = [], current = 0;
+const INTERVAL = 3000;
+let unlocked1 = false, unlocked2 = false;
+
+/* TYPEWRITER */
+const introTextEl = document.getElementById("introText");
+const fullHTML = introTextEl.innerHTML;
+introTextEl.innerHTML = "";
+let ti = 0;
+(function type(){
+    if (ti >= fullHTML.length) return;
+    if (fullHTML[ti] === "<") {
+        const end = fullHTML.indexOf(">", ti);
+        introTextEl.innerHTML += fullHTML.slice(ti, end + 1);
+        ti = end + 1;
+    } else {
+        introTextEl.innerHTML += fullHTML[ti++];
+    }
+    setTimeout(type, 18);
+})();
+
+/* ENTER */
+function enterCarousel(){
+    document.getElementById("intro").style.opacity = 0;
+    setTimeout(()=>{
+        document.getElementById("intro").style.display = "none";
+        document.getElementById("carouselPage").style.display = "block";
+        document.getElementById("carouselPage").style.opacity = 1;
+        bgMusic.volume = 0.3;
+        bgMusic.play();
+        initCarousel();
+        spawnHearts();
+    },1000);
+}
+
+/* CAROUSEL */
+function initCarousel(){
+    slides.forEach(s=>{
+        const img = new Image();
+        img.src = s.src;
+        carousel.appendChild(img);
+        images.push(img);
+    });
+    render();
+    setInterval(()=>{
+        current = (current + 1) % images.length;
+        render();
+    }, INTERVAL);
+}
+
+function render(){
+    images.forEach(img=>{
+        img.style.opacity = 0;
+        img.style.zIndex = 1;
+    });
+
+    const c = current;
+    const l = (c - 1 + images.length) % images.length;
+    const r = (c + 1) % images.length;
+
+    images[c].style.opacity = 1;
+    images[c].style.zIndex = 3;
+    images[c].style.transform = "translate(-50%,-50%) scale(1)";
+
+    images[l].style.opacity = 0.3;
+    images[l].style.zIndex = 2;
+    images[l].style.transform = "translate(-120%,-50%) scale(0.8)";
+
+    images[r].style.opacity = 0.3;
+    images[r].style.zIndex = 2;
+    images[r].style.transform = "translate(20%,-50%) scale(0.8)";
+
+    captionBox.textContent = slides[c].caption;
+}
+
+/* HEART SEQUENCES */
+const seq1 = ["17","12","24"];
+const seq2 = ["05","02","25"];
+let input = [];
+
+function resetHearts(){
+    document.querySelectorAll(".heart").forEach(h=>h.classList.remove("blue"));
+}
+
+function handleInput(val, heartEl){
+    input.push(val);
+
+    const p1 = seq1.slice(0,input.length).join() === input.join();
+    const p2 = seq2.slice(0,input.length).join() === input.join();
+
+    if (!p1 && !p2) {
+        input = [];
+        resetHearts();
+        return;
+    }
+
+    heartEl.classList.add("blue");
+
+    if (p1 && input.length === 3 && !unlocked1) {
+        unlocked1 = true;
+        bgMusic.pause();
+        alert("💖 Happy Anniversary 💖");
+        voice1.play();
+        voice1.onended = ()=>bgMusic.play();
+        input = [];
+        resetHearts();
+        checkFinal();
+        return;
+    }
+
+    if (p2 && input.length === 3 && !unlocked2) {
+        unlocked2 = true;
+        bgMusic.pause();
+        alert("💖 Legal na silaaa yieee! 💖");
+        voice2.play();
+        voice2.onended = ()=>bgMusic.play();
+        input = [];
+        resetHearts();
+        checkFinal();
+        return;
+    }
+}
+
+function checkFinal(){
+    if (unlocked1 && unlocked2) {
+        setTimeout(()=>{
+            document.getElementById("carouselPage").style.display = "none";
+            document.getElementById("finalPage").style.display = "flex";
+        }, 1200);
+    }
+}
+
+/* HEART SPAWN — INSIDE VIEWPORT, OUTSIDE CAROUSEL */
+function spawnHearts(){
+    const cont = document.getElementById("hearts");
+    const rect = carousel.getBoundingClientRect();
+    const size = 22;
+    const margin = 10;
+
+    for(let i=1;i<=25;i++){
+        let x,y;
+        do{
+            x = Math.random() * (window.innerWidth - size - margin*2) + margin;
+            y = Math.random() * (window.innerHeight - size - margin*2) + margin;
+        } while (
+            x > rect.left - size && x < rect.right &&
+            y > rect.top - size && y < rect.bottom
+        );
+
+        const h = document.createElement("div");
+        h.className = "heart";
+        h.style.left = x + "px";
+        h.style.top = y + "px";
+
+        const s = document.createElement("span");
+        s.textContent = String(i).padStart(2,"0");
+        h.appendChild(s);
+
+        h.onclick = ()=>handleInput(s.textContent, h);
+        cont.appendChild(h);
+    }
+}
+</script>
+
+</body>
+</html>
